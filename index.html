@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#f5f3ec">
+	<title>The Daily Quiz</title>
+	<style>
+		:root {
+			color-scheme: light;
+			--paper: #f5f3ec;
+			--ink: #20251f;
+			--muted: #72776e;
+			--line: #d9dbd1;
+			--green: #d8f268;
+			--green-dark: #385126;
+			--coral: #f1785d;
+			--white: #fffefa;
+			font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+			font-synthesis: none;
+		}
+
+		* { box-sizing: border-box; }
+
+		body {
+			min-width: 320px;
+			min-height: 100vh;
+			margin: 0;
+			color: var(--ink);
+			background-color: var(--paper);
+			background-image: radial-gradient(#d8dbd0 0.75px, transparent 0.75px);
+			background-size: 18px 18px;
+		}
+
+		button { font: inherit; }
+
+		.page {
+			width: min(100% - 40px, 1040px);
+			min-height: 100vh;
+			margin: 0 auto;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.topbar {
+			min-height: 82px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			border-bottom: 1px solid var(--line);
+		}
+
+		.brand {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			font-size: 14px;
+			font-weight: 800;
+			letter-spacing: 0;
+		}
+
+		.brand-mark {
+			width: 28px;
+			height: 28px;
+			display: grid;
+			place-items: center;
+			border-radius: 50%;
+			background: var(--green);
+			font-size: 17px;
+		}
+
+		.edition {
+			color: var(--muted);
+			font-size: 12px;
+			font-weight: 700;
+			text-transform: uppercase;
+		}
+
+		main {
+			flex: 1;
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) 260px;
+			align-items: center;
+			gap: clamp(36px, 8vw, 100px);
+			padding: 56px 0 68px;
+		}
+
+		.quiz { max-width: 620px; }
+
+		.eyebrow {
+			display: flex;
+			align-items: center;
+			gap: 9px;
+			margin: 0 0 18px;
+			color: var(--green-dark);
+			font-size: 12px;
+			font-weight: 800;
+			text-transform: uppercase;
+		}
+
+		.eyebrow::before {
+			width: 24px;
+			height: 3px;
+			background: var(--coral);
+			content: "";
+		}
+
+		h1, h2, p { margin-top: 0; }
+
+		h1 {
+			max-width: 620px;
+			margin-bottom: 14px;
+			font-family: Georgia, "Times New Roman", serif;
+			font-size: clamp(40px, 6vw, 68px);
+			font-weight: 500;
+			line-height: 0.99;
+		}
+
+		.intro {
+			max-width: 470px;
+			margin-bottom: 34px;
+			color: var(--muted);
+			font-size: 15px;
+			line-height: 1.6;
+		}
+
+		.question-top {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 14px;
+			color: var(--muted);
+			font-size: 12px;
+			font-weight: 700;
+			text-transform: uppercase;
+		}
+
+		.progress-track {
+			height: 5px;
+			overflow: hidden;
+			margin-bottom: 28px;
+			border-radius: 9px;
+			background: #e2e3da;
+		}
+
+		.progress-fill {
+			width: 10%;
+			height: 100%;
+			border-radius: inherit;
+			background: var(--green-dark);
+			transition: width 220ms ease;
+		}
+
+		.question {
+			min-height: 76px;
+			margin-bottom: 22px;
+			font-family: Georgia, "Times New Roman", serif;
+			font-size: clamp(24px, 3vw, 31px);
+			font-weight: 500;
+			line-height: 1.2;
+		}
+
+		.answers {
+			display: grid;
+			gap: 10px;
+		}
+
+		.answer {
+			width: 100%;
+			min-height: 58px;
+			padding: 12px 16px;
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			border: 1px solid var(--line);
+			border-radius: 5px;
+			color: var(--ink);
+			background: var(--white);
+			text-align: left;
+			cursor: pointer;
+			transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+		}
+
+		.answer:hover:not(:disabled) {
+			transform: translateX(3px);
+			border-color: var(--green-dark);
+		}
+
+		.answer:focus-visible, .action:focus-visible {
+			outline: 3px solid var(--coral);
+			outline-offset: 3px;
+		}
+
+		.answer:disabled { cursor: default; }
+
+		.answer-key {
+			width: 28px;
+			height: 28px;
+			flex: 0 0 28px;
+			display: grid;
+			place-items: center;
+			border: 1px solid var(--line);
+			border-radius: 50%;
+			color: var(--muted);
+			font-size: 12px;
+			font-weight: 700;
+		}
+
+		.answer.correct {
+			border-color: #9bb34b;
+			background: #f0f8d6;
+		}
+
+		.answer.correct .answer-key {
+			border-color: var(--green-dark);
+			color: var(--white);
+			background: var(--green-dark);
+		}
+
+		.answer.incorrect {
+			border-color: #e8aa9b;
+			background: #fff0eb;
+		}
+
+		.answer.incorrect .answer-key {
+			border-color: var(--coral);
+			color: white;
+			background: var(--coral);
+		}
+
+		.feedback {
+			min-height: 26px;
+			margin: 14px 0 8px;
+			color: var(--muted);
+			font-size: 13px;
+			line-height: 1.5;
+		}
+
+		.feedback strong { color: var(--ink); }
+
+		.action {
+			min-height: 48px;
+			padding: 0 20px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 18px;
+			border: 0;
+			border-radius: 3px;
+			color: var(--ink);
+			background: var(--green);
+			font-weight: 800;
+			cursor: pointer;
+			transition: background 140ms ease, transform 140ms ease;
+		}
+
+		.action:hover { transform: translateY(-2px); background: #c9e650; }
+		.action[hidden] { display: none; }
+
+		.side-note {
+			align-self: center;
+			padding: 25px 23px 22px;
+			border-top: 4px solid var(--coral);
+			background: #e9e9df;
+		}
+
+		.side-note .number {
+			display: block;
+			margin-bottom: 10px;
+			color: var(--green-dark);
+			font-family: Georgia, "Times New Roman", serif;
+			font-size: 58px;
+			line-height: 1;
+		}
+
+		.side-note h2 {
+			margin-bottom: 8px;
+			font-family: Georgia, "Times New Roman", serif;
+			font-size: 22px;
+			font-weight: 500;
+		}
+
+		.side-note p {
+			margin-bottom: 0;
+			color: var(--muted);
+			font-size: 13px;
+			line-height: 1.55;
+		}
+
+		.result-score {
+			margin: 0 0 12px;
+			font-family: Georgia, "Times New Roman", serif;
+			font-size: clamp(48px, 7vw, 76px);
+			line-height: 1;
+		}
+
+		.result-score span { color: var(--muted); font-size: 0.48em; }
+
+		.result-copy {
+			max-width: 480px;
+			margin-bottom: 24px;
+			color: var(--muted);
+			line-height: 1.6;
+		}
+
+		.review {
+			display: grid;
+			gap: 8px;
+			margin: 22px 0 24px;
+		}
+
+		.review-item {
+			padding: 12px 14px;
+			border-left: 3px solid var(--coral);
+			background: var(--white);
+			font-size: 13px;
+			line-height: 1.5;
+		}
+
+		.review-item strong { display: block; margin-bottom: 3px; }
+		.review-item span { color: var(--muted); }
+
+		footer {
+			min-height: 54px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			border-top: 1px solid var(--line);
+			color: var(--muted);
+			font-size: 11px;
+			font-weight: 700;
+			text-transform: uppercase;
+		}
+
+		@media (max-width: 720px) {
+			.page { width: min(100% - 32px, 560px); }
+			.topbar { min-height: 68px; }
+			main {
+				grid-template-columns: 1fr;
+				gap: 34px;
+				padding: 42px 0;
+			}
+			.side-note { display: grid; grid-template-columns: 58px 1fr; column-gap: 18px; padding: 18px; }
+			.side-note .number { grid-row: span 2; margin: 0; font-size: 48px; }
+			.side-note h2 { align-self: end; margin-bottom: 4px; }
+			.side-note p { grid-column: 2; }
+			.intro { margin-bottom: 27px; }
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+		}
+	</style>
+</head>
+<body>
+	<div class="page">
+		<header class="topbar">
+			<div class="brand"><span class="brand-mark" aria-hidden="true">?</span> THE DAILY QUIZ</div>
+			<div class="edition">A little knowledge goes a long way</div>
+		</header>
+
+		<main>
+			<section class="quiz" aria-live="polite" aria-atomic="false">
+				<p class="eyebrow">Your general knowledge check</p>
+				<h1>Ten questions.<br>A curious mind.</h1>
+				<p class="intro">A quick trip across science, nature, places, and the arts. Pick an answer and see how you do.</p>
+
+				<div class="question-top">
+					<span id="question-count">Question 1 of 10</span>
+					<span id="score-count">Score 0</span>
+				</div>
+				<div class="progress-track" role="progressbar" aria-label="Quiz progress" aria-valuemin="0" aria-valuemax="10" aria-valuenow="1">
+					<div class="progress-fill" id="progress-fill"></div>
+				</div>
+				<h2 class="question" id="question-text"></h2>
+				<div class="answers" id="answers" role="group" aria-label="Answer choices"></div>
+				<p class="feedback" id="feedback" aria-live="polite"></p>
+				<button class="action" id="next-button" type="button" hidden>Next question <span aria-hidden="true">&#8594;</span></button>
+			</section>
+
+			<aside class="side-note" aria-label="Quiz details">
+				<span class="number" aria-hidden="true">10</span>
+				<h2>A pocket-sized challenge</h2>
+				<p>Ten multiple-choice questions. No timer, no pressure. Just see what you know.</p>
+			</aside>
+		</main>
+
+		<footer><span>Curiosity, daily</span><span>Made for a few good minutes</span></footer>
+	</div>
+
+	<script>
+		const questions = [
+			{ question: "Which planet has the most moons currently known?", answers: ["Jupiter", "Saturn", "Neptune", "Uranus"], correct: 1, fact: "Saturn has the most confirmed moons of any planet in our solar system." },
+			{ question: "What is the largest hot desert on Earth?", answers: ["The Gobi", "The Arabian Desert", "The Sahara", "The Kalahari"], correct: 2, fact: "The Sahara is the world's largest hot desert, spanning much of North Africa." },
+			{ question: "Which element has the chemical symbol Fe?", answers: ["Fluorine", "Iron", "Francium", "Fermium"], correct: 1, fact: "Fe comes from the Latin word ferrum, meaning iron." },
+			{ question: "In which city would you find the Uffizi Gallery?", answers: ["Venice", "Rome", "Florence", "Milan"], correct: 2, fact: "The Uffizi Gallery is one of Florence's best-known art museums." },
+			{ question: "What is the largest species of shark?", answers: ["Great white shark", "Whale shark", "Tiger shark", "Hammerhead shark"], correct: 1, fact: "The whale shark is the largest fish alive, despite feeding mainly on tiny organisms." },
+			{ question: "Which language has the most native speakers worldwide?", answers: ["English", "Spanish", "Hindi", "Mandarin Chinese"], correct: 3, fact: "Mandarin Chinese has more native speakers than any other language." },
+			{ question: "What is the name of the closest star to Earth after the Sun?", answers: ["Sirius", "Proxima Centauri", "Barnard's Star", "Vega"], correct: 1, fact: "Proxima Centauri is just over four light-years from Earth." },
+			{ question: "Which artist painted The Starry Night?", answers: ["Claude Monet", "Paul Cezanne", "Vincent van Gogh", "Henri Matisse"], correct: 2, fact: "Van Gogh painted The Starry Night in 1889 while living in Saint-Remy-de-Provence." },
+			{ question: "What is the smallest country in the world by area?", answers: ["Monaco", "San Marino", "Liechtenstein", "Vatican City"], correct: 3, fact: "Vatican City covers less than half a square kilometer." },
+			{ question: "Which ocean is the deepest?", answers: ["Atlantic Ocean", "Indian Ocean", "Pacific Ocean", "Southern Ocean"], correct: 2, fact: "The Pacific Ocean contains the Mariana Trench, the deepest known ocean trench." }
+		];
+
+		const questionCount = document.getElementById("question-count");
+		const scoreCount = document.getElementById("score-count");
+		const progress = document.querySelector(".progress-track");
+		const progressFill = document.getElementById("progress-fill");
+		const questionText = document.getElementById("question-text");
+		const answersElement = document.getElementById("answers");
+		const feedback = document.getElementById("feedback");
+		const nextButton = document.getElementById("next-button");
+		const quiz = document.querySelector(".quiz");
+		let currentQuestion = 0;
+		let score = 0;
+		let missed = [];
+
+		function renderQuestion() {
+			const item = questions[currentQuestion];
+			questionCount.textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+			scoreCount.textContent = `Score ${score}`;
+			progress.setAttribute("aria-valuenow", String(currentQuestion + 1));
+			progressFill.style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
+			questionText.textContent = item.question;
+			feedback.textContent = "";
+			nextButton.hidden = true;
+			answersElement.replaceChildren();
+
+			item.answers.forEach((answer, index) => {
+				const button = document.createElement("button");
+				button.className = "answer";
+				button.type = "button";
+				button.innerHTML = `<span class="answer-key" aria-hidden="true">${String.fromCharCode(65 + index)}</span><span>${answer}</span>`;
+				button.addEventListener("click", () => selectAnswer(index));
+				answersElement.append(button);
+			});
+		}
+
+		function selectAnswer(selectedIndex) {
+			const item = questions[currentQuestion];
+			const buttons = [...answersElement.children];
+			buttons.forEach((button, index) => {
+				button.disabled = true;
+				if (index === item.correct) button.classList.add("correct");
+				if (index === selectedIndex && selectedIndex !== item.correct) button.classList.add("incorrect");
+			});
+
+			if (selectedIndex === item.correct) {
+				score += 1;
+				feedback.innerHTML = `<strong>That's right.</strong> ${item.fact}`;
+			} else {
+				missed.push({ question: item.question, answer: item.answers[item.correct] });
+				feedback.innerHTML = `<strong>Not quite.</strong> ${item.fact}`;
+			}
+
+			scoreCount.textContent = `Score ${score}`;
+			nextButton.hidden = false;
+			nextButton.innerHTML = currentQuestion === questions.length - 1
+				? `See your results <span aria-hidden="true">&#8594;</span>`
+				: `Next question <span aria-hidden="true">&#8594;</span>`;
+			nextButton.focus();
+		}
+
+		function showResults() {
+			const percent = score / questions.length;
+			const message = percent === 1
+				? "A perfect run. You really do know your stuff."
+				: percent >= 0.7
+					? "A strong showing. Your curiosity is paying off."
+					: percent >= 0.4
+						? "A good start. There is always something new to learn."
+						: "Every question is a new thing learned. Fancy another go?";
+
+			quiz.innerHTML = `<p class="eyebrow">That's a wrap</p>
+				<h1>Your results are in.</h1>
+				<p class="result-score">${score}<span> / ${questions.length}</span></p>
+				<p class="result-copy">${message}</p>
+				${missed.length ? `<div class="review" aria-label="Questions to revisit">${missed.map(item => `<div class="review-item"><strong>${item.question}</strong><span>Answer: ${item.answer}</span></div>`).join("")}</div>` : ""}
+				<button class="action" id="restart-button" type="button">Play again <span aria-hidden="true">&#8635;</span></button>`;
+			document.getElementById("restart-button").addEventListener("click", restart);
+			document.getElementById("restart-button").focus();
+		}
+
+		function restart() {
+			currentQuestion = 0;
+			score = 0;
+			missed = [];
+			quiz.innerHTML = `<p class="eyebrow">Your general knowledge check</p>
+				<h1>Ten questions.<br>A curious mind.</h1>
+				<p class="intro">A quick trip across science, nature, places, and the arts. Pick an answer and see how you do.</p>
+				<div class="question-top"><span id="question-count"></span><span id="score-count"></span></div>
+				<div class="progress-track" role="progressbar" aria-label="Quiz progress" aria-valuemin="0" aria-valuemax="10" aria-valuenow="1"><div class="progress-fill" id="progress-fill"></div></div>
+				<h2 class="question" id="question-text"></h2>
+				<div class="answers" id="answers" role="group" aria-label="Answer choices"></div>
+				<p class="feedback" id="feedback" aria-live="polite"></p>
+				<button class="action" id="next-button" type="button" hidden></button>`;
+			window.location.reload();
+		}
+
+		nextButton.addEventListener("click", () => {
+			if (currentQuestion === questions.length - 1) {
+				showResults();
+				return;
+			}
+			currentQuestion += 1;
+			renderQuestion();
+			questionText.focus?.();
+		});
+
+		renderQuestion();
+	</script>
+</body>
+</html>
